@@ -1,65 +1,38 @@
 # the client needs the location of all players for rendering purposes
-import pygame 
+import pygame ,random
 import socket,pickle
 from _thread import *
 import threading
-class Networkk:
+from network import Network
+from cone import ConeBlock
+
+max_speed = 0.4
+class Client:
     def __init__(self):
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server = "192.168.1.8"
-        self.port = 5554
-        self.addr = (self.server, self.port)
-        connTuple = self.connect()
-        self.playerId = connTuple[0]
-        self.players = connTuple[1]
-
-    def getPos(self):
-        return self.pos
-    def connect(self):
-        try:
-            self.client.connect(self.addr)   
-            playerIdData = self.client.recv(2048*8)
-            playerId = pickle.loads(playerIdData)
-            self.client.send(str.encode(f"Received player id = {playerId}"))
-            initialPlayers = pickle.loads(self.client.recv(2048*8))
-            return (playerId,initialPlayers)
-        except socket.error as e:
-            print(e)
-    
-    def send(self,playerPos):
-        try:
-            print(f"Send called = {playerPos}")
-            self.client.send(pickle.dumps(playerPos))
-            self.receivePlayersData()
-        except socket.error as e:
-            print(e)
-    def receivePlayersData(self):
-        try:
-            playersData = self.client.recv(2048*8)
-            players = pickle.loads(playersData)
-            print(f"Receved Players={players}")
-            self.players = players
-        except socket.error as e:
-            print(e)
-
-width = height = 500
-win = pygame.display.set_mode((width, height))
+        self.width = self.height = 600
+        self.coneBlocks = []
+        self.win = pygame.display.set_mode((self.width, self.height))
 
 
 
-def redrawWindow(win,players,clientPlayer):
+def redrawWindow(win,players,clientPlayer,client):
     win.fill((255,255,255))
+    for cone in client.coneBlocks:
+        cone.draw(win)
     for i in range(len(players)):
         if i == clientPlayer.playerId:
-            clientPlayer.draw()
+            clientPlayer.draw(win)
         else:
             player = players[i]
             pygame.draw.rect(win,player['color'],(player['x'],player['y'],10,10))
     pygame.display.update()
 
 
+
+
 class Player:
-    def __init__(self,x,y,width,height,color):
+    def __init__(self,x,y,width,height,color,client):
+        self.client = client
         self.x = x
         self.y = y
         self.width = width
@@ -68,48 +41,96 @@ class Player:
         self.rect = (x,y,width,height)
         self.vel = 1.5
         self.playerId = -1
-    def draw(self):
-        pygame.draw.rect(win,self.color,self.rect)
+        self.velX = 0
+        self.velY = 0
+        self.acceleration = 0.1
+        self.friction = 0.99
+
+    def draw (self, win):
+        pygame.draw.rect(win, self.color, self.rect)
+
     def move(self):
         keys = pygame.key.get_pressed()
+        
         if keys[pygame.K_LEFT]:
-            self.x -= self.vel
+            if self.velX > -max_speed:
+                self.velX -= self.acceleration
 
         if keys[pygame.K_RIGHT]:
-            self.x += self.vel
-        
+            if self.velX < max_speed:
+                self.velX += self.acceleration
+
         if keys[pygame.K_UP]:
-            self.y -= self.vel
-        
+            if self.velY > -max_speed:
+                self.velY -= self.acceleration
+
         if keys[pygame.K_DOWN]:
-            self.y += self.vel
-        self.rect = (self.x,self.y,self.width,self.height)
+            if self.velY < max_speed:
+                self.velY += self.acceleration
+        
+
+        self.x += self.velX
+        self.y += self.velY
+        self.velX *= self.friction
+        self.velY *= self.friction
+        
+        iscolliding = self.collision()
+        if iscolliding == False:
+            self.update()
+        else:
+            self.x -= self.velX
+            self.y -= self.velY
+            # self.velX /= self.friction
+            # self.velY /= self.friction
+            self.velX = 0
+            self.velY = 0
+            self.update()
+    
+    def collision(self):
+        for cone in self.client.coneBlocks:
+            if cone.x + cone.width > self.x and cone.x < self.x + self.width:
+                if cone.y + cone.height > self.y and cone.y < self.y + self.height:
+                    return True
+            if self.x<2 or self.y<2 or self.x>self.client.width-10 or self.y>self.client.height-10:
+                return True
+        return False
+
+    def update(self):
+        self.rect = (self.x, self.y, self.width, self.height)
     
 
 
 def main():
     run = True 
     # starting the client 
-    connTuple = Networkk()  
-    playerId = connTuple.playerId
-    players = connTuple.players
+    client = Client()
+    network = Network()  
+    playerId = network.playerId
+    players = network.players
+    coneBlocksPos = network.coneBlocks
+    for i in range(len(coneBlocksPos)):
+        coneBlock = ConeBlock(coneBlocksPos[i][0],coneBlocksPos[i][1])
+        client.coneBlocks.append(coneBlock)
+    print(client.coneBlocks)
     print(f"Received player id = {playerId}")
     print(f"Received players = {players}")
     pygame.display.set_caption(f"Client:{playerId}")
-    clientPlayer = Player(players[playerId]['x'], players[playerId]['y'],10,10,players[playerId]['color'])
+    clientPlayer = Player(players[playerId]['x'], players[playerId]['y'],10,10,players[playerId]['color'],client)
     clientPlayer.playerId = playerId
-    redrawWindow(win,players,clientPlayer)
+    
+    redrawWindow(client.win,players,clientPlayer,client)
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False 
                 pygame.quit()
         clientPlayer.move()
+
         newLocation={"x": clientPlayer.x,"y": clientPlayer.y}
-        redrawWindow(win,connTuple.players,clientPlayer)
-        print(f"New player location={newLocation}")
-        # thr = threading.Thread(target=connTuple.send,args=(newLocation,)).start()
-        connTuple.send(newLocation)
+        redrawWindow(client.win,network.players,clientPlayer,client)
+        # print(f"New player location={newLocation}")
+        # thr = threading.Thread(target=network.send,args=(newLocation,)).start()
+        network.send(newLocation)
 
 
 main()

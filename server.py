@@ -2,12 +2,25 @@ import socket
 import sys
 from _thread import *
 import pickle
+from network import Network
+from cone import ConeBlock
+
 class gameState:
     def __init__(self):
         self.numPlayers = -1 
         self.players = [] # each element would store the player's location and color   
         self.possibleConfig = [([50,50],[0,255,0]),([100,100],[255,0,0]),([150,150],[0,0,255]),([200,200],[255,255,0])]
         self.currConfig = 0
+        # blocks  
+        self.coneBlocks = []
+        self.addConeBlocks(5)
+
+    def addConeBlocks(self,num=5):
+        for i in range(num):
+            coneBlock = ConeBlock()
+            self.coneBlocks.append((coneBlock.x,coneBlock.y))
+
+
     def addNewPlayer(self):
         self.numPlayers += 1
         config = (self.currConfig+1)%3
@@ -17,7 +30,7 @@ class gameState:
 
 
 server = "192.168.1.8"
-port = 5554
+port = 5550
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -31,7 +44,7 @@ except socket.error as msg:
 s.listen()
 print(f"Listening on {server}:{port}")
 
-game = gameState()
+game = gameState() # initialisation of game
 def threaded_client(conn,playerId):
     toSendId = pickle.dumps(playerId)
     conn.send(toSendId)
@@ -40,6 +53,9 @@ def threaded_client(conn,playerId):
     intialPlayers = game.players
     conn.send(pickle.dumps(intialPlayers))
     print(game.players)
+    confirmation = conn.recv(2048).decode('utf-8')
+    print(confirmation)
+    conn.send(pickle.dumps(game.coneBlocks))
     # client would send it's position conitnuosly
     while True:
         try:
