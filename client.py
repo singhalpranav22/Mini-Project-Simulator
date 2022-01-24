@@ -2,14 +2,18 @@ import pygame
 from network import Network
 from cone import ConeBlock
 from player import Player
+from tile import Tile
 
-max_speed = 0.4
+
+max_speed = 0.05
 
 
 class Client:
     def __init__(self):
-        self.width = self.height = 500
+        self.width = self.height = 480
         self.coneBlocks = []
+        self.mapLayout = []
+        self.players = []
         self.win = pygame.display.set_mode((self.width, self.height))
 
 # width = 600
@@ -23,16 +27,23 @@ class Client:
 #     player2.draw(win)
 #     pygame.display.update()
 
-def redrawWindow(win, players, clientPlayer, client):
-    win.fill((255, 255, 255))
-    for cone in client.coneBlocks:
-        cone.draw(win)
+def redrawWindow(win, players, clientPlayer,gameMap, client):
+    win.fill((255,248,231)) 
+    for i in range(0,480,16):
+        for j in range(0,480,16):
+            if gameMap[i//16][j//16] == 1:
+                tile = Tile(i,j)
+                tile.draw(win)
+            else:
+                pass
+    # for cone in client.coneBlocks:
+    #     cone.draw(win)
     for i in range(len(players)):
         if i == clientPlayer.playerId:
             clientPlayer.draw(win)
         else:
             player = players[i]
-            pygame.draw.rect(win, player['color'], (player['x'], player['y'], 10, 10))
+            pygame.draw.rect(win, player['color'], (player['x'], player['y'], 8, 8))
     pygame.display.update()
 
 
@@ -43,32 +54,39 @@ def main():
 
     playerId = network.playerId
     players = network.players
+    print(players)
     coneBlocksPos = network.coneBlocks
+    gameMap = network.gameMap
+    print(gameMap)
 
     for i in range(len(coneBlocksPos)):
         coneBlock = ConeBlock(coneBlocksPos[i][0], coneBlocksPos[i][1])
         client.coneBlocks.append(coneBlock)
 
     print(client.coneBlocks)
+
+    client.mapLayout = gameMap
     # print(f"Received player id = {playerId}")
     # print(f"Received players = {players}")
 
     pygame.display.set_caption(f"Client:{playerId}")
 
-    clientPlayer = Player(players[playerId]['x'], players[playerId]['y'], 10, 10, players[playerId]['color'], client)
+    clientPlayer = Player(players[playerId]['x'], players[playerId]['y'], 8, 8, players[playerId]['color'], client)
     clientPlayer.playerId = playerId
 
-    redrawWindow(client.win, players, clientPlayer, client)
+    redrawWindow(client.win, players, clientPlayer, gameMap, client)
 
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-        clientPlayer.move()
+        client.players = players
+        clientPlayer.move(client.players)
 
         newLocation = {"x": clientPlayer.x, "y": clientPlayer.y}
-        redrawWindow(client.win, network.players, clientPlayer, client)
+
+        redrawWindow(client.win, network.players, clientPlayer, gameMap,client)
         network.send(newLocation)
 
 
