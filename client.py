@@ -52,14 +52,15 @@ def main():
     run = True
     client = Client()
     network = Network()
-
+   
     playerId = network.playerId
     players = network.players
-    print(players)
+    print("Player Id: ", playerId)
     # coneBlocksPos = network.coneBlocks
     gameMap = network.gameMap
+    print("yo print kara hai")
     print(gameMap)
-
+    time.sleep(1)
     # for i in range(len(coneBlocksPos)):
     #     coneBlock = ConeBlock(coneBlocksPos[i][0], coneBlocksPos[i][1])
     #     client.coneBlocks.append(coneBlock)
@@ -69,7 +70,7 @@ def main():
     client.mapLayout = gameMap
     # print(f"Received player id = {playerId}")
     # print(f"Received players = {players}")
-
+    # print(players)
     pygame.display.set_caption(f"Client:{playerId}")
 
     clientPlayer = Player(players[playerId]['x'], players[playerId]['y'], 8, 8, players[playerId]['color'], client)

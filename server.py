@@ -40,7 +40,7 @@ class GameState:
 
 
 
-server = "104.45.150.250"
+server = ""
 port = 5559
 
 sock = socket.socket(socket.AF_INET,  socket.SOCK_DGRAM)
@@ -103,6 +103,12 @@ def sendLocationsToPlayers():
             sock.sendto(playersLocation, dic)
             
 start_new_thread(sendLocationsToPlayers, ())
+def newPlayer(addr,sock):
+    playerId = game.addNewPlayer()
+    game.playerNetId[addr] = {"playerId": playerId,"addr":addr}
+    sock.sendto(pickle.dumps(playerId),addr)
+    sock.sendto(pickle.dumps(game.arrMap),addr)
+    sock.sendto(pickle.dumps(game.players),addr)
 while True:
     # conn, addr = s.accept()
     # print(f"Connected to: {addr}")
@@ -110,11 +116,7 @@ while True:
     if(addr is None):
         continue
     if(addr not in game.playerNetId):
-        playerId = game.addNewPlayer()
-        game.playerNetId[addr] = {"playerId": playerId,"addr":addr}
-        sock.sendto(pickle.dumps(playerId),addr)
-        sock.sendto(pickle.dumps(game.arrMap),addr)
-        sock.sendto(pickle.dumps(game.players),addr)
+        start_new_thread(newPlayer, (addr,sock))
         # start_new_thread(threaded_client, (sock, playerId))
     else:
         playerId = game.playerNetId[addr]["playerId"]
@@ -125,6 +127,7 @@ while True:
             # print(f'New Player location received from id = {playerId} is player:{ playerLocation}')
         game.players[playerId]['x'] = playerLocation['x']
         game.players[playerId]['y'] = playerLocation['y']
+
 
 
 
