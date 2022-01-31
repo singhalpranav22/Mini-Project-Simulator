@@ -3,7 +3,7 @@ from network import Network
 from cone import ConeBlock
 from player import Player
 from tile import Tile
-
+from _thread import *
 
 max_speed = 0.5
 
@@ -56,15 +56,15 @@ def main():
     playerId = network.playerId
     players = network.players
     print(players)
-    coneBlocksPos = network.coneBlocks
+    # coneBlocksPos = network.coneBlocks
     gameMap = network.gameMap
     print(gameMap)
 
-    for i in range(len(coneBlocksPos)):
-        coneBlock = ConeBlock(coneBlocksPos[i][0], coneBlocksPos[i][1])
-        client.coneBlocks.append(coneBlock)
+    # for i in range(len(coneBlocksPos)):
+    #     coneBlock = ConeBlock(coneBlocksPos[i][0], coneBlocksPos[i][1])
+    #     client.coneBlocks.append(coneBlock)
 
-    print(client.coneBlocks)
+    # print(client.coneBlocks)
 
     client.mapLayout = gameMap
     # print(f"Received player id = {playerId}")
@@ -76,7 +76,7 @@ def main():
     clientPlayer.playerId = playerId
 
     redrawWindow(client.win, players, clientPlayer, gameMap, client)
-
+    start_new_thread(sendPlayerData, (network, clientPlayer))
     while run:
         # clock.tick(FPS)
         for event in pygame.event.get():
@@ -91,6 +91,14 @@ def main():
         redrawWindow(client.win, network.players, clientPlayer, gameMap,client)
         network.send(newLocation)
 
+
+def sendPlayerData(network,clientPlayer):
+    while True:
+        time.sleep(0.01)
+        # print("Sending player data")
+        # print(client.players)
+        newLocation = {"x": clientPlayer.x, "y": clientPlayer.y}
+        network.send(newLocation)
 
 main()
 

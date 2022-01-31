@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="1">
+ <tileset firstgid="1" source="roguelikeIndoor_transparent.tsx"/>
+ <layer id="3" name="Ground" width="30" height="30" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJztlcENgCAQBK9U3/RhH5RiE/ajPkgIAbyFYw2Gx7xEB/Y2eIr4E8SJyAP6XoLsZG7nMZM35Dyj10XfQUn3waLHq80Zzba2Hpnv8urW5zrBmC/bW2Nkzsvb5rXkS2/rnZybAeNf0Ou16BXaOas+t3r9C+zzlvZg0WfUa+HXzDd4QpY554hepV7GfH963k1DdM9Az0pcp1MOqw==
+  </data>
+ </layer>
+ <layer id="5" name="Tile Layer 3" width="30" height="30" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJwTZKAO6AHiU0B8GsqGgV5GhgM9QNwNxDAxQSiGAXcg9gBiXSQM4usRafcGBoYD6xkQ5uMDgoSVUBVUAbEzA3b/ovsZ2b/6FNo7FYjjGEj372wK7R2pgA2Nf5+RgeEBED9kRGUTAh+A+CMJ9iqSoBYf4Aa6jYcI91HbXlLBqL1Dz96bSJie9qoB07M6EGsQSNf9jAwLqGnvLSSMD0ygsr2kABsgBgULExpmpqGdQjQ0e6SA44wMCY+AGMaPBEZiFCOCBgH0Ot8cCZML+hgheDCCXgaGBTC2JZT+SWM7+Rgg7Tp0e0VoHEaaDJB2Hbq9+oM0bmgBgOn4AAyTo98ZGFYuBMIrD5imwpHSFTVAHNDOeBLiaQkjpv9KgPpL0fI7IVAJVFcFVZsEpJOBOAWIU4E4DYjTkcoNAN6ANlw=
+  </data>
+ </layer>
+ <layer id="4" name="Walls" width="30" height="30" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJzllesNhSAMhWFO/jiFa7ACozjaFRXDbVo8VR4xnuTEhIZ+2JZgjF6z3bzc2DpU/mXcp3UeyXXWTBqvvMCcI5RM9x+eECeG2/Ns5tbckbMUy+NXirVd98Ga7clduDja45pczVy9kPs3l2mtJVeazzhfrforyWf+Cjf/9uJSfi9p61yTG6V8F1hdvQuC4XehwE3/EFCj9SnNFTpzyCzT3tfi5nm9YDS35o5pubVEc/dg3uG2qPNILmV/hSvFEK50L7ge/gAU268L
+  </data>
+ </layer>
+</map>

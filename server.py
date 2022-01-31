@@ -11,6 +11,7 @@ import time
 class GameState:
     def __init__(self):
         self.numPlayers = -1
+        self.playerNetId = {}
         self.players = []  # each element would store the player's location and color
         self.possibleConfig = [([50,50,0], [0, 255, 0]), ([100,100], [255, 0, 0]), ([150, 150], [0, 0, 255]), ([200, 200], [255, 255, 0])]
         self.currConfig = 0
@@ -39,66 +40,96 @@ class GameState:
 
 
 
-server = ""
+server = "104.45.150.250"
 port = 5559
 
-s = socket.socket(socket.AF_INET,  socket.SOCK_STREAM)
+sock = socket.socket(socket.AF_INET,  socket.SOCK_DGRAM)
 
 try:
-    s.bind((server,  port))
+    sock.bind((server,  port))
 
 except socket.error as msg:
     print("Socket creation error: " + str(msg))
     sys.exit()
 
-s.listen()
-print(f"Listening on {server}: {port}")
+print(f"UDP server Listening on {server}: {port}")
 
 game = GameState()  # initialisation of game
 
 
-def threaded_client(conn, playerId):
-    toSendId = pickle.dumps(playerId)
-    conn.send(toSendId)
-    confirmation = conn.recv(4096).decode('utf-8')
-    print(confirmation)
-    print(game.arrMap)
-    toSendMap = pickle.dumps(game.arrMap)
-    conn.send(toSendMap)
-    confirmation = conn.recv(4096).decode('utf-8')
-    print(confirmation)
-    intialPlayers = game.players
-    conn.send(pickle.dumps(intialPlayers))
-    print(game.players)
-    confirmation = conn.recv(4096).decode('utf-8')
-    print(confirmation)
-    conn.send(pickle.dumps(game.coneBlocks))
+# def threaded_client(conn, playerId):
+#     toSendId = pickle.dumps(playerId)
+#     conn.send(toSendId)
+#     confirmation = conn.recv(4096).decode('utf-8')
+#     print(confirmation)
+#     print(game.arrMap)
+#     toSendMap = pickle.dumps(game.arrMap)
+#     conn.send(toSendMap)
+#     confirmation = conn.recv(4096).decode('utf-8')
+#     print(confirmation)
+#     intialPlayers = game.players
+#     conn.send(pickle.dumps(intialPlayers))
+#     print(game.players)
+#     confirmation = conn.recv(4096).decode('utf-8')
+#     print(confirmation)
+#     conn.send(pickle.dumps(game.coneBlocks))
 
-    # client would send its position continuously
+#     # client would send its position continuously
+#     while True:
+#         # time.sleep(0.1)
+#         try:
+#             playerLocationData = conn.recv(4096)
+#             playerLocation = pickle.loads(playerLocationData)
+#             if playerLocation is None:
+#                 print('No data recv!')
+#                 continue
+#             # print(f'New Player location received from id = {playerId} is player:{ playerLocation}')
+#             game.players[playerId]['x'] = playerLocation['x']
+#             game.players[playerId]['y'] = playerLocation['y']
+#             replyData = pickle.dumps(game.players)  # reply sent containing location of all players
+#             conn.send(replyData)
+#         except socket.timeout:
+#             print("Timeout")
+#     print(f"Connection Closed, player id : {playerId}")
+#     conn.close()
+
+
+def sendLocationsToPlayers():
     while True:
-        # time.sleep(0.1)
-        try:
-            playerLocationData = conn.recv(4096)
-            playerLocation = pickle.loads(playerLocationData)
-            if playerLocation is None:
+        time.sleep(0.02)
+        playersLocation = pickle.dumps(game.players)
+        for dic in game.playerNetId:
+            # print(dic)
+            sock.sendto(playersLocation, dic)
+            
+start_new_thread(sendLocationsToPlayers, ())
+while True:
+    # conn, addr = s.accept()
+    # print(f"Connected to: {addr}")
+    message,addr = sock.recvfrom(2048)
+    if(addr is None):
+        continue
+    if(addr not in game.playerNetId):
+        playerId = game.addNewPlayer()
+        game.playerNetId[addr] = {"playerId": playerId,"addr":addr}
+        sock.sendto(pickle.dumps(playerId),addr)
+        sock.sendto(pickle.dumps(game.arrMap),addr)
+        sock.sendto(pickle.dumps(game.players),addr)
+        # start_new_thread(threaded_client, (sock, playerId))
+    else:
+        playerId = game.playerNetId[addr]["playerId"]
+        playerLocation = pickle.loads(message)
+        if playerLocation is None:
                 print('No data recv!')
                 continue
             # print(f'New Player location received from id = {playerId} is player:{ playerLocation}')
-            game.players[playerId]['x'] = playerLocation['x']
-            game.players[playerId]['y'] = playerLocation['y']
-            replyData = pickle.dumps(game.players)  # reply sent containing location of all players
-            conn.send(replyData)
-        except socket.timeout:
-            print("Timeout")
-    print(f"Connection Closed, player id : {playerId}")
-    conn.close()
+        game.players[playerId]['x'] = playerLocation['x']
+        game.players[playerId]['y'] = playerLocation['y']
 
 
-while True:
-    conn, addr = s.accept()
-    print(f"Connected to: {addr}")
-    playerId = game.addNewPlayer()
-    print(game.players)
-    start_new_thread(threaded_client, (conn, playerId, ))
+
+    # playerId = game.addNewPlayer()
+    # print(game.players)
+    # start_new_thread(threaded_client, (conn, playerId, ))
 
 
