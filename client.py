@@ -1,4 +1,4 @@
-import pygame
+import pygame,time
 from network import Network
 from cone import ConeBlock
 from player import Player
@@ -78,7 +78,7 @@ def main():
     redrawWindow(client.win, players, clientPlayer, gameMap, client)
 
     while run:
-        clock.tick(FPS)
+        # clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False

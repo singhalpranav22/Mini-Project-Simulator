@@ -76,7 +76,7 @@ def threaded_client(conn, playerId):
 
     # client would send its position continuously
     while True:
-        time.sleep(0.1)
+        # time.sleep(0.1)
         try:
             playerLocationData = conn.recv(4096)
             playerLocation = pickle.loads(playerLocationData)
