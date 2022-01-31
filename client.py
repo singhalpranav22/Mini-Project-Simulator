@@ -55,12 +55,13 @@ def main():
    
     playerId = network.playerId
     players = network.players
-    print("Player Id: ", playerId)
+    # print("Player Id: ", playerId)
+    # print("Players ", players)
     # coneBlocksPos = network.coneBlocks
     gameMap = network.gameMap
-    print("yo print kara hai")
-    print(gameMap)
-    time.sleep(1)
+    # print("yo print kara hai")
+    # print(gameMap)
+   
     # for i in range(len(coneBlocksPos)):
     #     coneBlock = ConeBlock(coneBlocksPos[i][0], coneBlocksPos[i][1])
     #     client.coneBlocks.append(coneBlock)

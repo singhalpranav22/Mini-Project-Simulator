@@ -20,20 +20,24 @@ class Network:
         try:
             # self.client.connect(self.addr)
             self.client.sendto(str.encode("connection request"), self.addr)
-            time.sleep(0.2)
-            playerIdData = self.client.recv(4096)
-            playerId = pickle.loads(playerIdData)
+            playerData,add = self.client.recvfrom(4096)
+            data = pickle.loads(playerData)
+            playerId = data["playerId"]
+            gameMap = data["arrMap"]
+            initialPlayers = data["players"]
+            print("received player id: ", playerId)
             # self.client.send(str.encode(f"Received player id = {playerId}"))
-            time.sleep(0.2)
-            gameMapData = self.client.recv(4096)
-            gameMap = pickle.loads(gameMapData)
+            # gameMapData,add = self.client.recvfrom(2048)
+            # gameMap = pickle.loads(gameMapData)
+            print("received game map",gameMap)
             # self.client.send(str.encode(f"Received gamemap = {gameMap}"))
-            time.sleep(0.2)
-            initialPlayers = pickle.loads(self.client.recv(4096))
+            # players,add = self.client.recvfrom(2048)
+            # initialPlayers = pickle.loads(players)
+            print("received initial players",initialPlayers)
             # self.client.send(str.encode(f"Received Players location = {initialPlayers}"))
 
             # coneBlocks = pickle.loads(self.client.recv(4096))
-
+            time.sleep(6)
             return playerId, initialPlayers, gameMap
 
         except socket.error as e:

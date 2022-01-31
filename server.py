@@ -106,9 +106,15 @@ start_new_thread(sendLocationsToPlayers, ())
 def newPlayer(addr,sock):
     playerId = game.addNewPlayer()
     game.playerNetId[addr] = {"playerId": playerId,"addr":addr}
-    sock.sendto(pickle.dumps(playerId),addr)
-    sock.sendto(pickle.dumps(game.arrMap),addr)
-    sock.sendto(pickle.dumps(game.players),addr)
+    toSend = {
+        "playerId": playerId,
+        "arrMap": game.arrMap,
+        "players": game.players,
+    }
+    sock.sendto(pickle.dumps(toSend),addr)
+    # sock.sendto(pickle.dumps(game.arrMap),addr)
+    # sock.sendto(pickle.dumps(game.players),addr)
+
 while True:
     # conn, addr = s.accept()
     # print(f"Connected to: {addr}")
