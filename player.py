@@ -16,8 +16,8 @@ class Player:
         self.playerId = -1
         self.velX = 0
         self.velY = 0
-        self.acceleration = 0.1
-        self.friction = 0.99
+        self.acceleration = 0.05
+        self.friction = 0.005
 
     def draw(self, win):
         pygame.draw.rect(win, self.color, self.rect)

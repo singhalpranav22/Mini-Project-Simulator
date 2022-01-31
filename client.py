@@ -5,7 +5,7 @@ from player import Player
 from tile import Tile
 from _thread import *
 
-max_speed = 0.5
+max_speed = 0.1
 
 FPS=60
 clock = pygame.time.Clock()
