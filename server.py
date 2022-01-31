@@ -4,7 +4,8 @@ import pickle
 from cone import ConeBlock
 from _thread import *
 import json
-
+import pygame 
+clock = pygame.time.Clock()
 
 class GameState:
     def __init__(self):
@@ -74,6 +75,7 @@ def threaded_client(conn, playerId):
 
     # client would send its position continuously
     while True:
+        clock.tick(60)
         try:
             playerLocationData = conn.recv(4096)
             playerLocation = pickle.loads(playerLocationData)

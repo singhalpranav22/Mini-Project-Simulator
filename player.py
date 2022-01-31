@@ -1,6 +1,6 @@
 import pygame
 
-max_speed = 0.1
+max_speed = 0.5
 
 
 class Player:

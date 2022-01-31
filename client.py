@@ -5,9 +5,10 @@ from player import Player
 from tile import Tile
 
 
-max_speed = 0.05
+max_speed = 0.5
 
-
+FPS=60
+clock = pygame.time.Clock()
 class Client:
     def __init__(self):
         self.width = self.height = 480
@@ -77,6 +78,7 @@ def main():
     redrawWindow(client.win, players, clientPlayer, gameMap, client)
 
     while run:
+        clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
