@@ -39,7 +39,7 @@ class GameState:
 
 
 
-server = "192.168.1.8"
+server = ""
 port = 5559
 
 s = socket.socket(socket.AF_INET,  socket.SOCK_STREAM)
