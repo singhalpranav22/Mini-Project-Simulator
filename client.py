@@ -28,8 +28,9 @@ class Client:
 #     player2.draw(win)
 #     pygame.display.update()
 
-def redrawWindow(win, players, clientPlayer,gameMap, client):
+def redrawWindow(win, players, clientPlayer,gameMap, client, goal):
     win.fill((255,248,231)) 
+    pygame.draw.circle(win, (0,0,0), goal,5 ,1)
     for i in range(0,480,16):
         for j in range(0,480,16):
             if gameMap[i//16][j//16] == 1:
@@ -59,6 +60,7 @@ def main():
     # print("Players ", players)
     # coneBlocksPos = network.coneBlocks
     gameMap = network.gameMap
+    goal = network.goal
     # print("yo print kara hai")
     # print(gameMap)
    
@@ -76,8 +78,9 @@ def main():
 
     clientPlayer = Player(players[playerId]['x'], players[playerId]['y'], 8, 8, players[playerId]['color'], client)
     clientPlayer.playerId = playerId
+    clientPlayer.goal = goal
 
-    redrawWindow(client.win, players, clientPlayer, gameMap, client)
+    redrawWindow(client.win, players, clientPlayer, gameMap, client,goal)
     start_new_thread(sendPlayerData, (network, clientPlayer))
     while run:
         # clock.tick(FPS)
@@ -90,7 +93,7 @@ def main():
 
         newLocation = {"x": clientPlayer.x, "y": clientPlayer.y}
 
-        redrawWindow(client.win, network.players, clientPlayer, gameMap,client)
+        redrawWindow(client.win, network.players, clientPlayer, gameMap,client,goal)
         network.send(newLocation)
 
 
@@ -103,21 +106,3 @@ def sendPlayerData(network,clientPlayer):
         network.send(newLocation)
 
 main()
-
-# def mainOld():
-#     run = True
-#     n = Network()
-#     p = n.getP()
-#     clock = pygame.time.Clock()
-#
-#     while run:
-#         clock.tick(60)
-#         p2 = n.send(p)
-#
-#         for event in pygame.event.get():
-#             if event.type == pygame.QUIT:
-#                 run = False
-#                 pygame.quit()
-#
-#         p.move()
-#         redrawWindow(win, p, p2)
