@@ -30,7 +30,7 @@ class Client:
 
 def redrawWindow(win, players, clientPlayer,gameMap, client, goal):
     win.fill((255,248,231)) 
-    pygame.draw.circle(win, (0,0,0), goal,5 ,1)
+    pygame.draw.circle(win, (0,0,0), goal,10 ,1)
     for i in range(0,480,16):
         for j in range(0,480,16):
             if gameMap[i//16][j//16] == 1:
@@ -76,7 +76,7 @@ def main():
     # print(players)
     pygame.display.set_caption(f"Client:{playerId}")
 
-    clientPlayer = Player(players[playerId]['x'], players[playerId]['y'], 8, 8, players[playerId]['color'], client)
+    clientPlayer = Player(players[playerId]['x'], players[playerId]['y'], 8, 8, players[playerId]['color'], client,goal)
     clientPlayer.playerId = playerId
     clientPlayer.goal = goal
 

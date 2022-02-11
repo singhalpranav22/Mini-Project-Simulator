@@ -1,14 +1,14 @@
 import pygame
 
-max_speed = 0.5
+max_speed = 0.09
 
 
 class Player:
-    def __init__(self, x, y, width, height, color, client):
+    def __init__(self, x, y, width, height, color, client,goal):
         self.client = client
         self.x = x
         self.y = y
-        self.goal = (0,0)
+        self.goal = goal
         self.width = width
         self.height = height
         self.color = color
@@ -19,6 +19,7 @@ class Player:
         self.velY = 0
         self.acceleration = 0.03
         self.friction = 0.005
+        self.hasReachedGoal = False
 
     def update(self):
         self.rect = (self.x, self.y, self.width, self.height)
@@ -27,41 +28,58 @@ class Player:
         pygame.draw.rect(win, self.color, self.rect)
 
     def move(self, players):
-        keys = pygame.key.get_pressed()
+        if self.hasReachedGoal == False:
+            keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_LEFT]:
-            if self.velX > -max_speed:
-                self.velX -= self.acceleration
+            if keys[pygame.K_LEFT]:
+                if self.velX > -max_speed:
+                    self.velX -= self.acceleration
 
-        if keys[pygame.K_RIGHT]:
-            if self.velX < max_speed:
-                self.velX += self.acceleration
+            if keys[pygame.K_RIGHT]:
+                if self.velX < max_speed:
+                    self.velX += self.acceleration
 
-        if keys[pygame.K_UP]:
-            if self.velY > -max_speed:
-                self.velY -= self.acceleration
+            if keys[pygame.K_UP]:
+                if self.velY > -max_speed:
+                    self.velY -= self.acceleration
 
-        if keys[pygame.K_DOWN]:
-            if self.velY < max_speed:
-                self.velY += self.acceleration
+            if keys[pygame.K_DOWN]:
+                if self.velY < max_speed:
+                    self.velY += self.acceleration
 
-        self.x += self.velX
-        self.y += self.velY
-        # self.velX *= self.friction
-        # self.velY *= self.friction
+            self.x += self.velX
+            self.y += self.velY
+            # self.velX *= self.friction
+            # self.velY *= self.friction
 
-        isColliding = self.collision(players)
-        if isColliding == False:
-            self.update()
+            isColliding = self.collision(players)
+            self.hasReachedGoal = self.checkGoalReached()
+            if self.hasReachedGoal == True:
+                self.x -= self.velX
+                self.y -= self.velY
+                self.velX = 0
+                self.velY = 0
+                self.update()
+                return
+            if isColliding == False:
+                self.update()
+            else:
+                self.x -= self.velX
+                self.y -= self.velY
+                self.velX = 0
+                self.velY = 0
+                print(self.x, self.y, self.velX, self.velY)
+                self.update()
+                print(self.x, self.y, self.velX, self.velY)
+
+
+    def checkGoalReached(self):
+        x = self.goal[0]
+        y = self.goal[1]
+        if self.x >= x-2 and self.x <= x+2 and self.y >= y -2 and self.y <= y+2:
+            return True 
         else:
-            self.x -= self.velX
-            self.y -= self.velY
-            self.velX = 0
-            self.velY = 0
-            print(self.x, self.y, self.velX, self.velY)
-            self.update()
-            print(self.x, self.y, self.velX, self.velY)
-
+            return False
 
     def checkBound(self,x,y):
         if x<0 or y<0 or x>=30 or y>=30:

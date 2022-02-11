@@ -63,10 +63,18 @@ start_new_thread(sendLocationsToPlayers, ())
 
 hasStarted = False
 def recordData():
+    while True:
+        inp = input("Enter 'yes' to start the game! =  ")
+        if inp == "yes":
+            break 
+        else:
+            print('Enter correctly!!')
+    sceneNumber = input('Enter the scene number(like 1,2,23,....) : ')
+    print('Data recording has been started')
     data = []
     curr = 0
     fields = ['frameNumber','1','2','3','4','5','6']
-    while curr<=50:
+    while curr<=200:
         curr+=1
         time.sleep(0.25)
         players = game.players
@@ -80,7 +88,7 @@ def recordData():
         data.append(arr)
 
         
-    filename = "scene.csv"
+    filename = f"scene{sceneNumber}.csv"
     
 # writing to csv file 
     with open(filename, 'w') as csvfile: 
@@ -92,6 +100,26 @@ def recordData():
             
         # writing the data rows 
         csvwriter.writerows(data)
+    data = []
+    filename = f"scene{sceneNumber}Goal.csv"
+    fields = ['1','2','3','4','5','6']
+    arr = [-1,-1,-1,-1,-1,-1]
+    for i in range(len(players)):
+            arr[i] = players[i]['goal'][0]
+    data.append(arr)
+    arr = [-1,-1,-1,-1,-1,-1]
+    for i in range(len(players)):
+            arr[i] = players[i]['goal'][1]
+    data.append(arr)
+
+
+    with open(filename, 'w') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(fields)
+        csvwriter.writerows(data)
+    print('Data recording completed!')
+
+    
 
 
 def newPlayer(addr,sock):
