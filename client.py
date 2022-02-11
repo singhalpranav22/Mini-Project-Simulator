@@ -1,6 +1,5 @@
 import pygame,time
 from network import Network
-from cone import ConeBlock
 from player import Player
 from tile import Tile
 from _thread import *
@@ -30,7 +29,7 @@ class Client:
 
 def redrawWindow(win, players, clientPlayer,gameMap, client, goal):
     win.fill((255,248,231)) 
-    pygame.draw.circle(win, (0,0,0), goal,10 ,1)
+    pygame.draw.circle(win, (0,153,0), goal, 8 ,1)
     for i in range(0,480,16):
         for j in range(0,480,16):
             if gameMap[i//16][j//16] == 1:
@@ -88,7 +87,7 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-        client.players = players
+        client.players = network.players
         clientPlayer.move(client.players)
 
         newLocation = {"x": clientPlayer.x, "y": clientPlayer.y}

@@ -1,6 +1,7 @@
+from re import S
 import pygame
 
-max_speed = 0.09
+max_speed = 0.10
 
 
 class Player:
@@ -17,8 +18,8 @@ class Player:
         self.playerId = -1
         self.velX = 0
         self.velY = 0
-        self.acceleration = 0.03
-        self.friction = 0.005
+        self.acceleration = 0.001
+        self.friction = 0.0002
         self.hasReachedGoal = False
 
     def update(self):
@@ -36,6 +37,7 @@ class Player:
                     self.velX -= self.acceleration
 
             if keys[pygame.K_RIGHT]:
+
                 if self.velX < max_speed:
                     self.velX += self.acceleration
 
@@ -49,10 +51,7 @@ class Player:
 
             self.x += self.velX
             self.y += self.velY
-            # self.velX *= self.friction
-            # self.velY *= self.friction
-
-            isColliding = self.collision(players)
+            isColliding = self.collision(players,self.client)
             self.hasReachedGoal = self.checkGoalReached()
             if self.hasReachedGoal == True:
                 self.x -= self.velX
@@ -62,15 +61,23 @@ class Player:
                 self.update()
                 return
             if isColliding == False:
+                if self.velX>0:
+                    self.velX -= self.friction
+                elif self.velX<0:
+                    self.velX += self.friction
+                if self.velY>0:
+                    self.velY -= self.friction
+                elif self.velY<0:
+                    self.velY += self.friction
                 self.update()
             else:
                 self.x -= self.velX
                 self.y -= self.velY
                 self.velX = 0
                 self.velY = 0
-                print(self.x, self.y, self.velX, self.velY)
+                # print(self.x, self.y, self.velX, self.velY)
                 self.update()
-                print(self.x, self.y, self.velX, self.velY)
+                # print(self.x, self.y, self.velX, self.velY)
 
 
     def checkGoalReached(self):
@@ -87,8 +94,10 @@ class Player:
         else:
             return True
 
-    def collision(self, players):
-        # For walls
+    def collision(self, players,client):
+
+
+        # For walls in map
         for i in range(0,30):
             for j in range(0,30):
                 if self.client.mapLayout[i][j] == 1:
@@ -96,6 +105,10 @@ class Player:
                         return True
                     if self.x +8 >= i*16 and self.x + 8 <= i*16+16 and self.y + 8>= j*16 and self.y +8<= j*16+16:
                         return True
+
+        # For edges
+        if self.x <= 0 or self.y<=0 or self.y>480-8 or self.x>480-8:
+            return True 
                         
         # For players
         w = self.width
@@ -104,9 +117,8 @@ class Player:
             if i!=self.playerId:
                 x = players[i]['x']
                 y = players[i]['y']
-                print("Didn't collide yet")
                 if (self.x < x + w and self.x + w > x and self.y < y + h and h + self.y > y):
-                    print('Collision ho gaya!')
+                    # print('Collision!')
                     return True
                    
         return False
