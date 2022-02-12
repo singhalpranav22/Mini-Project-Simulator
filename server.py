@@ -89,7 +89,7 @@ def recordData():
         data.append(arr)
 
         
-    filename = f"scene{sceneNumber}.csv"
+    filename = f"scenes/scene/scene{sceneNumber}.csv"
     
 # writing to csv file 
     with open(filename, 'w') as csvfile: 
@@ -102,7 +102,7 @@ def recordData():
         # writing the data rows 
         csvwriter.writerows(data)
     data = []
-    filename = f"scene{sceneNumber}Goal.csv"
+    filename = f"scenes/goal/scene{sceneNumber}Goal.csv"
     fields = ['1','2','3','4','5','6']
     arr = [-1,-1,-1,-1,-1,-1]
     for i in range(len(players)):
