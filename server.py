@@ -53,10 +53,12 @@ game = GameState()  # initialisation of game
 
 def sendLocationsToPlayers():
     while True:
-        time.sleep(0.02)
-        playersLocation = pickle.dumps(game.players)
+        time.sleep(0.04)
+        data = {}
+        data["type"] = "players"
+        data["players"] = game.players
+        playersLocation = pickle.dumps(data)
         for dic in game.playerNetId:
-            # print(dic)
             sock.sendto(playersLocation, dic)
             
 start_new_thread(sendLocationsToPlayers, ())
@@ -65,60 +67,121 @@ hasStarted = False
 def recordData():
     while True:
         inp = input("Enter 'yes' to start the game! =  ")
-        if inp == "yes":
-            break 
-        else:
-            print('Enter correctly!!')
-    sceneNumber = input('Enter the scene number(like 1,2,23,....) : ')
-    frameNumbers = int(input('Number of frames to record : '))
-    print('Data recording has been started')
-    data = []
-    curr = 0
-    fields = ['frameNumber','1','2','3','4','5','6']
-    while curr<=frameNumbers:
-        curr+=1
-        time.sleep(0.25)
-        players = game.players
-        arr = [curr,-1,-1,-1,-1,-1,-1]
+        if inp != "yes":
+            print("Ending game!!")
+            break
+        sceneNumber = input('Enter the scene number(like 1,2,23,....) : ')
+        frameNumbers = int(input('Number of frames to record : '))
+        numObstacles = int(input('Number of obstacles : '))
+        obstacleList = []
+        for i in range(numObstacles):
+            print(f"For obstacle {i+1}:")
+            x = int(input('Enter x coordinate : '))
+            y = int(input('Enter y coordinate : '))
+            obstacleList.append({"x":x,"y":y})
+        game.numPlayers=-1
+        game.players = []
+        for dic in game.playerNetId:
+            data = {}
+            data["type"] = "newScene"
+            playerId, goal = game.addNewPlayer()
+            data = {
+            "type" : "newScene",
+            "playerId": playerId,
+            "arrMap": game.arrMap,
+            "players": game.players,
+            "goal": goal,
+            "obstacles" : obstacleList, 
+            }
+
+            sock.sendto(pickle.dumps(data), dic)
+        groups = {}
+        groupNum = int(input('Enter number of groups : '))
+        for i in range(groupNum):
+            print(f'Enter group {i+1} members = ',end="")
+            lst = input().split(' ')
+            groups[i+1] = lst
+        print('Start again ? (Y/N) = ',end="")
+        inp = input()
+        if(inp=="Y" or inp=="y"):
+            continue
+        print("Game starting in 5 seconds........")
+        print('Data recording has been started')
+        data = []
+        curr = 0
+        fields = ['frameNumber','1','2','3','4','5','6']
+        while curr<=frameNumbers:
+            curr+=1
+            time.sleep(0.25)
+            players = game.players
+            arr = [curr,-1,-1,-1,-1,-1,-1]
+            for i in range(len(players)):
+                arr[i+1] = players[i]['x']
+            data.append(arr)
+            arr = [curr,-1,-1,-1,-1,-1,-1]
+            for i in range(len(players)):
+                arr[i+1] = players[i]['y']
+            data.append(arr)
+
+            
+        filename = f"scenes/scene/scene{sceneNumber}.csv"
+        
+    # writing to csv file 
+        with open(filename, 'w') as csvfile: 
+        # creating a csv writer object 
+            csvwriter = csv.writer(csvfile) 
+                
+            # writing the fields 
+            csvwriter.writerow(fields) 
+                
+            # writing the data rows 
+            csvwriter.writerows(data)
+        data = []
+        filename = f"scenes/goal/scene{sceneNumber}Goal.csv"
+        fields = ['1','2','3','4','5','6']
+        arr = [-1,-1,-1,-1,-1,-1]
         for i in range(len(players)):
-            arr[i+1] = players[i]['x']
+                arr[i] = players[i]['goal'][0]
         data.append(arr)
-        arr = [curr,-1,-1,-1,-1,-1,-1]
+        arr = [-1,-1,-1,-1,-1,-1]
         for i in range(len(players)):
-            arr[i+1] = players[i]['y']
+                arr[i] = players[i]['goal'][1]
         data.append(arr)
+
+
+        with open(filename, 'w') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(fields)
+            csvwriter.writerows(data)
+
+        filename = f"scenes/groups/scene{sceneNumber}Groups.csv"
+        fields = ['1','2','3','4']
+        data = []
+        lst = []
+        for i in range(groupNum):
+            lst.append(groups[i+1])
+        i = groupNum+1
+        while i<=4:
+            lst.append([-1])
+            i+=1
+        data.append(lst)
+        with open(filename, 'w') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(fields)
+            csvwriter.writerows(data)
+        filename = f"scenes/obstacles/scene{sceneNumber}Obstacles.csv"
+        fields = ['obstacles']
+        data = []
+        for i in range(len(obstacleList)):
+            data.append([obstacleList[i]])
+        with open(filename, 'w') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(fields)
+            csvwriter.writerows(data)
 
         
-    filename = f"scenes/scene/scene{sceneNumber}.csv"
-    
-# writing to csv file 
-    with open(filename, 'w') as csvfile: 
-    # creating a csv writer object 
-        csvwriter = csv.writer(csvfile) 
-            
-        # writing the fields 
-        csvwriter.writerow(fields) 
-            
-        # writing the data rows 
-        csvwriter.writerows(data)
-    data = []
-    filename = f"scenes/goal/scene{sceneNumber}Goal.csv"
-    fields = ['1','2','3','4','5','6']
-    arr = [-1,-1,-1,-1,-1,-1]
-    for i in range(len(players)):
-            arr[i] = players[i]['goal'][0]
-    data.append(arr)
-    arr = [-1,-1,-1,-1,-1,-1]
-    for i in range(len(players)):
-            arr[i] = players[i]['goal'][1]
-    data.append(arr)
+        print('Data recording completed!')
 
-
-    with open(filename, 'w') as csvfile:
-        csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(fields)
-        csvwriter.writerows(data)
-    print('Data recording completed!')
 
     
 
@@ -126,12 +189,13 @@ def recordData():
 def newPlayer(addr,sock):
     playerId, goal = game.addNewPlayer()
     game.playerNetId[addr] = {"playerId": playerId,"addr":addr}
+    obstacles = []
     toSend = {
         "playerId": playerId,
         "arrMap": game.arrMap,
         "players": game.players,
-        "goal": goal
-        
+        "goal": goal,
+        "obstacles" : obstacles, 
     }
     sock.sendto(pickle.dumps(toSend),addr)
     # sock.sendto(pickle.dumps(game.arrMap),addr)

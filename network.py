@@ -2,10 +2,11 @@ import socket
 import pickle
 from _thread import *
 import time
+
 class Network:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server = "192.16.1.8"
+        self.server = "192.168.1.8"
         self.port = 5559
         self.addr = (self.server, self.port)
         # self.p = self.connect()
@@ -15,6 +16,7 @@ class Network:
         # self.coneBlocks = network[2]
         self.gameMap = network[2]
         self.goal = network[3]
+        self.obstacles = network[4]
         start_new_thread(self.receivePlayersData, ())
 
     def connect(self):
@@ -27,20 +29,10 @@ class Network:
             gameMap = data["arrMap"]
             initialPlayers = data["players"]
             goal = data["goal"] # goal is a tuple (x,y)
+            obstacles = data["obstacles"]
             print("received player id: ", playerId)
-            # self.client.send(str.encode(f"Received player id = {playerId}"))
-            # gameMapData,add = self.client.recvfrom(2048)
-            # gameMap = pickle.loads(gameMapData)
-            # print("received game map",gameMap)
-            # self.client.send(str.encode(f"Received gamemap = {gameMap}"))
-            # players,add = self.client.recvfrom(2048)
-            # initialPlayers = pickle.loads(players)
-            # print("received initial players",initialPlayers)
-            # self.client.send(str.encode(f"Received Players location = {initialPlayers}"))
-
-            # coneBlocks = pickle.loads(self.client.recv(4096))
             time.sleep(6)
-            return playerId, initialPlayers, gameMap , goal
+            return playerId, initialPlayers, gameMap , goal,obstacles
 
         except socket.error as e:
             print(e)
@@ -54,10 +46,23 @@ class Network:
 
     def receivePlayersData(self):
         while True:
-            time.sleep(0.01)
             playersData,addr = self.client.recvfrom(4096)
             if(playersData is None):
                 continue
-            players = pickle.loads(playersData)
-            self.players = players
+            data = pickle.loads(playersData)
+            if data["type"]=="players":
+                self.players = data["players"]
+            elif data["type"]=="newScene":
+                playerId = data["playerId"]
+                gameMap = data["arrMap"]
+                initialPlayers = data["players"]
+                goal = data["goal"] 
+                obstacles = data["obstacles"]
+                self.playerId=playerId
+                self.gameMap=gameMap
+                self.players = initialPlayers
+                self.goal = goal
+                self.obstacles = obstacles
+
+                
 

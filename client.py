@@ -3,10 +3,12 @@ from network import Network
 from player import Player
 from tile import Tile
 from _thread import *
+from obstacle import ConeBlock
 
 max_speed = 0.1
 
 FPS=60
+
 clock = pygame.time.Clock()
 class Client:
     def __init__(self):
@@ -27,7 +29,7 @@ class Client:
 #     player2.draw(win)
 #     pygame.display.update()
 
-def redrawWindow(win, players, clientPlayer,gameMap, client, goal):
+def redrawWindow(win, players, clientPlayer,gameMap, client, goal,obstacles):
     win.fill((255,248,231)) 
     pygame.draw.circle(win, (0,153,0), goal, 8 ,1)
     for i in range(0,480,16):
@@ -37,14 +39,14 @@ def redrawWindow(win, players, clientPlayer,gameMap, client, goal):
                 tile.draw(win)
             else:
                 pass
-    # for cone in client.coneBlocks:
-    #     cone.draw(win)
+    for obstacle in obstacles:
+        pygame.draw.circle(win, (0,0,0), (obstacle['x'],obstacle['y']), 8 ,8)
     for i in range(len(players)):
-        if i == clientPlayer.playerId:
-            clientPlayer.draw(win)
-        else:
-            player = players[i]
-            pygame.draw.rect(win, player['color'], (player['x'], player['y'], 8, 8))
+        # if i == clientPlayer.playerId:
+        #     clientPlayer.draw(win)
+        # else:
+        player = players[i]
+        pygame.draw.rect(win, player['color'], (player['x'], player['y'], 8, 8))
     pygame.display.update()
 
 
@@ -75,11 +77,11 @@ def main():
     # print(players)
     pygame.display.set_caption(f"Client:{playerId}")
 
-    clientPlayer = Player(players[playerId]['x'], players[playerId]['y'], 8, 8, players[playerId]['color'], client,goal)
+    clientPlayer = Player(players[playerId]['x'], players[playerId]['y'], 8, 8, players[playerId]['color'], client,goal,network)
     clientPlayer.playerId = playerId
     clientPlayer.goal = goal
 
-    redrawWindow(client.win, players, clientPlayer, gameMap, client,goal)
+    redrawWindow(client.win, players, clientPlayer, gameMap, client,goal,network.obstacles)
     start_new_thread(sendPlayerData, (network, clientPlayer))
     while run:
         # clock.tick(FPS)
@@ -92,7 +94,7 @@ def main():
 
         newLocation = {"x": clientPlayer.x, "y": clientPlayer.y}
 
-        redrawWindow(client.win, network.players, clientPlayer, gameMap,client,goal)
+        redrawWindow(client.win, network.players, clientPlayer,network.gameMap,client,network.goal,network.obstacles)
         network.send(newLocation)
 
 

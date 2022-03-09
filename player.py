@@ -1,11 +1,11 @@
 from re import S
 import pygame
-
+from network import Network
 max_speed = 0.10
 
 
 class Player:
-    def __init__(self, x, y, width, height, color, client,goal):
+    def __init__(self, x, y, width, height, color, client,goal,network):
         self.client = client
         self.x = x
         self.y = y
@@ -21,6 +21,7 @@ class Player:
         self.acceleration = 0.001
         self.friction = 0.0002
         self.hasReachedGoal = False
+        self.network = network
 
     def update(self):
         self.rect = (self.x, self.y, self.width, self.height)
@@ -120,5 +121,18 @@ class Player:
                 if (self.x < x + w and self.x + w > x and self.y < y + h and h + self.y > y):
                     # print('Collision!')
                     return True
-                   
+        
+        # For obstacles
+        for obstacle in self.network.obstacles:
+            x = obstacle["x"]
+            y = obstacle["y"]
+            if (self.x-x)**2 + (self.y-y)**2 <= 64:
+                return True     
+            if (self.x+self.width-x)**2 + (self.y-y)**2 <= 64:
+                return True 
+            if (self.x-x)**2 + (self.y+self.height-y)**2 <= 64:
+                return True   
+            if (self.x+self.width-x)**2 + (self.y+self.height-y)**2 <= 64:
+                return True   
+
         return False
