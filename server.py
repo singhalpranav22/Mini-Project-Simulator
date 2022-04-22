@@ -8,22 +8,37 @@ clock = pygame.time.Clock()
 import time
 import random
 import csv
+import numpy as np
+from numpy.linalg import norm
 class GameState:
     def __init__(self):
         self.numPlayers = -1
         self.playerNetId = {}
         self.players = []  # each element would store the player's location and color
-        self.possibleConfig = [([50,50], [0, 0, 102]), ([100,100], [255, 0, 0]), ([150, 150], [0, 0, 255]), ([200, 200], [0, 204, 204]), ([150, 200], [0, 255, 255]), ([100, 300], [102, 0, 204])]
+        self.possibleConfig = [([50,50], [0, 0, 102]), ([100,100], [255, 0, 0]), ([150, 150], [0, 0, 255]), ([200, 200], [0, 204, 204]), ([150, 200], [0, 255, 255]), ([100, 300], [102, 0, 204]),([400,400], [0, 0, 102]),([350,350], [0, 0, 102]),([280,280], [0, 0, 102])]
         self.currConfig = 0
         self.arrMap = []
         self.importMapArray()
+        self.goal1 = (random.randint(10,460), random.randint(10,460))
+        self.goal2 = (random.randint(10,460), random.randint(10,460))
 
     def addNewPlayer(self):
+        # two groups
+        # first group - red (0-4)
+        # second group - blue (5-8)
+
         self.numPlayers += 1
-        config = (self.currConfig + 1) % 6
-        self.currConfig = config
-        goal = (random.randint(10,460), random.randint(10,460))
-        self.players.append({'x': self.possibleConfig[config][0][0], 'y': self.possibleConfig[config][0][1], 'color': (self.possibleConfig[config][1][0], self.possibleConfig[config][1][1], self.possibleConfig[config][1][2]), "goal": goal})
+        goal = None
+        if self.numPlayers<=4:
+            config = (self.currConfig + 1) % 10
+            self.currConfig = config
+            self.players.append({'x': self.possibleConfig[config][0][0], 'y': self.possibleConfig[config][0][1], 'color': (255,0,0), "goal": self.goal1})
+            goal = self.goal1
+        else:
+            config = (self.currConfig + 1) % 10
+            self.currConfig = config
+            self.players.append({'x': self.possibleConfig[config][0][0], 'y': self.possibleConfig[config][0][1], 'color': (0,0,255), "goal": self.goal2})
+            goal = self.goal2
         return self.numPlayers,goal
     
     def importMapArray(self):
@@ -31,11 +46,10 @@ class GameState:
         data = json.load(f)
         self.arrMap = data["map2"]
 
-
-
-
+  
+       
 server = ""
-port = 5559
+port = 5580
 
 sock = socket.socket(socket.AF_INET,  socket.SOCK_DGRAM)
 
