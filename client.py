@@ -29,9 +29,9 @@ class Client:
 #     player2.draw(win)
 #     pygame.display.update()
 
-def redrawWindow(win, players, clientPlayer,gameMap, client, goal,obstacles):
+def redrawWindow(win, players, clientPlayer,gameMap, client, goal,obstacles,playerId):
     win.fill((255,248,231)) 
-    pygame.draw.circle(win, (0,153,0), goal, 8 ,1)
+    pygame.draw.circle(win, (0,153,0), goal, 16 ,1)
     for i in range(0,480,16):
         for j in range(0,480,16):
             if gameMap[i//16][j//16] == 1:
@@ -42,11 +42,12 @@ def redrawWindow(win, players, clientPlayer,gameMap, client, goal,obstacles):
     for obstacle in obstacles:
         pygame.draw.circle(win, (0,0,0), (obstacle['x'],obstacle['y']), 8 ,8)
     for i in range(len(players)):
-        # if i == clientPlayer.playerId:
-        #     clientPlayer.draw(win)
-        # else:
-        player = players[i]
-        pygame.draw.rect(win, player['color'], (player['x'], player['y'], 8, 8))
+        if i == playerId:
+            player = players[i]
+            pygame.draw.rect(win, (0,0,0), (player['x'], player['y'], 8, 8))
+        else:
+            player = players[i]
+            pygame.draw.rect(win, player['color'], (player['x'], player['y'], 8, 8))
     pygame.display.update()
 
 
@@ -81,7 +82,7 @@ def main():
     clientPlayer.playerId = playerId
     clientPlayer.goal = goal
 
-    redrawWindow(client.win, players, clientPlayer, gameMap, client,goal,network.obstacles)
+    redrawWindow(client.win, players, clientPlayer, gameMap, client,goal,network.obstacles,playerId)
     start_new_thread(sendPlayerData, (network, clientPlayer))
     while run:
         # clock.tick(FPS)
@@ -94,7 +95,7 @@ def main():
 
         newLocation = {"x": clientPlayer.x, "y": clientPlayer.y}
 
-        redrawWindow(client.win, network.players, clientPlayer,network.gameMap,client,network.goal,network.obstacles)
+        redrawWindow(client.win, network.players, clientPlayer,network.gameMap,client,network.goal,network.obstacles,playerId)
         network.send(newLocation)
 
 
