@@ -10,6 +10,14 @@ import random
 import csv
 import numpy as np
 from numpy.linalg import norm
+
+"""
+Two groups are formed:
+1. Group 1:
+5 players coloured -> red
+2. Group 2:
+4 players coloured -> blue
+"""
 class GameState:
     def __init__(self):
         self.numPlayers = -1
