@@ -28,12 +28,12 @@ class GameState:
         center1 = (random.randint(10,460), random.randint(10,460))
         x1 = center1[0]
         y1 = center1[1]
-        self.possibleConfig1 = [(x1-14,y1),(x1-4,y1),(x1+6,y1),(x1-4,y1-14),(x1-4,y1+9)]
+        self.possibleConfig1 = [(x1-14,y1),(x1-4,y1),(x1+6,y1)]
         # group 2
         center2 = (random.randint(10,460), random.randint(10,460))
         x2 = center2[0]
         y2 = center2[1]
-        self.possibleConfig2 = [(x2-14,y2),(x2-4,y2),(x2+6,y2),(x2-4,y2-14),(x2-4,y2+9)]
+        self.possibleConfig2 = [(x2-14,y2),(x2-4,y2),(x2+6,y2)]
         self.currConfig = 0
         self.arrMap = []
         self.importMapArray()
@@ -47,15 +47,15 @@ class GameState:
 
         self.numPlayers += 1
         goal = None
-        if self.numPlayers<=4:
-            config = (self.currConfig + 1) % 10
+        if self.numPlayers<=2:
+            config = (self.currConfig + 1) % 7
             self.currConfig = config
             self.players.append({'x': self.possibleConfig1[self.numPlayers][0], 'y': self.possibleConfig1[self.numPlayers][1], 'color': (255,0,0), "goal": self.goal1})
             goal = self.goal1
         else:
             config = (self.currConfig + 1) % 10
             self.currConfig = config
-            self.players.append({'x': self.possibleConfig2[self.numPlayers%5][0], 'y': self.possibleConfig2[self.numPlayers%5][1], 'color': (0,0,255), "goal": self.goal2})
+            self.players.append({'x': self.possibleConfig2[self.numPlayers%3][0], 'y': self.possibleConfig2[self.numPlayers%3][1], 'color': (0,0,255), "goal": self.goal2})
             goal = self.goal2
         return self.numPlayers,goal
     
