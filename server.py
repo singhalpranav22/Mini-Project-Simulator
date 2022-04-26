@@ -127,12 +127,12 @@ def recordData():
             }
 
             sock.sendto(pickle.dumps(data), dic)
-        groups = {}
-        groupNum = int(input('Enter number of groups : '))
-        for i in range(groupNum):
-            print(f'Enter group {i+1} members = ',end="")
-            lst = input().split(' ')
-            groups[i+1] = lst
+        # groups = {}
+        # groupNum = int(input('Enter number of groups : '))
+        # for i in range(groupNum):
+        #     print(f'Enter group {i+1} members = ',end="")
+        #     lst = input().split(' ')
+        #     groups[i+1] = lst
         print('Start again ? (Y/N) = ',end="")
         inp = input()
         if(inp=="Y" or inp=="y"):
@@ -186,21 +186,21 @@ def recordData():
             csvwriter.writerow(fields)
             csvwriter.writerows(data)
 
-        filename = f"scenes/groups/scene{sceneNumber}Groups.csv"
-        fields = ['1','2','3','4']
-        data = []
-        lst = []
-        for i in range(groupNum):
-            lst.append(groups[i+1])
-        i = groupNum+1
-        while i<=4:
-            lst.append([-1])
-            i+=1
-        data.append(lst)
-        with open(filename, 'w') as csvfile:
-            csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(fields)
-            csvwriter.writerows(data)
+        # filename = f"scenes/groups/scene{sceneNumber}Groups.csv"
+        # fields = ['1','2','3','4']
+        # data = []
+        # lst = []
+        # for i in range(groupNum):
+        #     lst.append(groups[i+1])
+        # i = groupNum+1
+        # while i<=4:
+        #     lst.append([-1])
+        #     i+=1
+        # data.append(lst)
+        # with open(filename, 'w') as csvfile:
+        #     csvwriter = csv.writer(csvfile)
+        #     csvwriter.writerow(fields)
+        #     csvwriter.writerows(data)
         filename = f"scenes/obstacles/scene{sceneNumber}Obstacles.csv"
         fields = ['obstacles']
         data = []
